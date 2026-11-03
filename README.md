@@ -1,5 +1,9 @@
 # purrfile 🐾
 
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/teodoramz/purrfile/ci.yml?label=ci&style=flat-square)](https://github.com/teodoramz/purrfile/actions/workflows/ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/teodoramz/purrfile?style=flat-square)](https://github.com/teodoramz/purrfile/releases/latest)
+[![GitHub marketplace](https://img.shields.io/badge/marketplace-purrfile-blue?logo=github&style=flat-square)](https://github.com/marketplace/actions/purrfile)
+
 A pixel cat for your GitHub profile, redrawn every night from your public activity.
 
 <p align="center">
