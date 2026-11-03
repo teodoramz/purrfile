@@ -1,0 +1,54 @@
+name: purrfile
+description: A pixel cat for your GitHub profile — a retro desktop header and a cat that hunts your snk snake.
+author: Teodor Amzuloiu
+branding:
+  icon: github
+  color: purple
+
+inputs:
+  login:
+    description: Account whose cat to draw.
+    default: ${{ github.repository_owner }}
+  token:
+    description: Token for reading the account's public data; the built-in token is enough.
+    default: ${{ github.token }}
+  desktop:
+    description: Path to write the retro desktop SVG to (empty to skip).
+    default: ""
+  snake:
+    description: Space-separated Platane/snk SVG paths to add the hunter cat to, in place (empty to skip).
+    default: ""
+  cat-name:
+    description: Your cat's name.
+    default: Mochi
+  extra-lines:
+    description: Optional path to a text file with extra lines for the cat, one per line.
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    # Docker actions such as Platane/snk create dist/ as root; take it back so purrfile can write there.
+    - name: Make sure the output folders are writable
+      shell: bash
+      env:
+        PF_DESKTOP: ${{ inputs.desktop }}
+        PF_SNAKE: ${{ inputs.snake }}
+      run: bash "$GITHUB_ACTION_PATH/scripts/prepare-paths.sh" "$PF_DESKTOP" $PF_SNAKE
+    - name: Draw the purrfile cat
+      shell: bash
+      env:
+        PYTHONPATH: ${{ github.action_path }}/src
+        GITHUB_TOKEN: ${{ inputs.token }}
+        PF_LOGIN: ${{ inputs.login }}
+        PF_DESKTOP: ${{ inputs.desktop }}
+        PF_SNAKE: ${{ inputs.snake }}
+        PF_CAT: ${{ inputs.cat-name }}
+        PF_EXTRA: ${{ inputs.extra-lines }}
+      run: >-
+        python3 -m purrfile run
+        --login "$PF_LOGIN"
+        --desktop "$PF_DESKTOP"
+        --snake "$PF_SNAKE"
+        --cat-name "$PF_CAT"
+        --extra-lines "$PF_EXTRA"

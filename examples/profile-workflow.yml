@@ -1,0 +1,47 @@
+# Copy into your profile repository as
+# .github/workflows/purrfile.yml.
+name: Profile cat
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # every night just after midnight UTC
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency: profile-cat
+
+jobs:
+  draw:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # 1. Your contribution snake (skip this step and the `snake:` input if you only want the desktop)
+      - uses: Platane/snk@v3
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          outputs: |
+            dist/github-snake.svg
+            dist/github-snake-dark.svg?palette=github-dark
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 2. The cat: a retro desktop header + a cat that hunts the snake
+      - uses: teodoramz/purrfile@v1
+        with:
+          desktop: dist/desktop.svg
+          snake: dist/github-snake.svg dist/github-snake-dark.svg
+          # cat-name: Mochi
+          # extra-lines: .github/purrfile-lines.txt   # needs actions/checkout before this step
+
+      # 3. Publish dist/ to the `output` branch
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: output
+          keep_files: true
+          commit_message: "Update the profile cat [skip ci]"

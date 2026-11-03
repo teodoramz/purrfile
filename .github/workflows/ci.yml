@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.10", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install pytest
+      - run: python -m pytest -q
+        env:
+          # also run the Docker check that recreates snk's root-owned dist/ folder (once is enough)
+          PURRFILE_DOCKER_TESTS: ${{ matrix.python == '3.13' && '1' || '' }}
+      - name: The CLI runs from a plain checkout, the way the Action runs it
+        env:
+          PYTHONPATH: src
+        run: |
+          python -m purrfile --version
+          python -m purrfile desktop tests/fixtures/teodor-snapshot.json --output out/desktop.svg --date 2026-11-03
+          cp tests/fixtures/snk-dark.svg out/snake.svg
+          python -m purrfile hunt tests/fixtures/teodor-snapshot.json out/snake.svg --date 2026-11-03
